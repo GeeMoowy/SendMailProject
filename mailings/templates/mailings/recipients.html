@@ -1,0 +1,22 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Получатели рассылки{% endblock %}
+
+{% block content %}
+    {% include 'mailings/main_menu.html' %}
+
+<div class="container">
+    <h1 class="mt-4">Список получателей</h1>
+    <div class="row">
+        {% for recipient in recipients %}
+                <div class="card h-100 d-flex flex-column">
+                    <div class="card-body d-flex flex-column flex-grow-1">
+                        <h5 class="card-title"><strong>{{ recipient.email }}</strong> - <em>{{ recipient.full_name }}</em></h5>
+                        <p class="card-text">{{ recipient.comment }}</p>
+                    </div>
+                </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
