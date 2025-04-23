@@ -12,4 +12,11 @@ class MailingRecipient(models.Model):
         return f'{self.full_name}: <{self.email}>'
 
 
+class Message(models.Model):
+    """Модель для хранения сообщения с темой и телом сообщения."""
 
+    subject = models.CharField(max_length=255, verbose_name='Тема сообщения')
+    body = models.TextField(verbose_name='Тело сообщения')
+
+    def __str__(self):
+        return self.subject

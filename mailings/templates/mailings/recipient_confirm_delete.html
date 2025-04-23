@@ -1,0 +1,17 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Удаление{% endblock %}
+
+{% block content %}
+    {% include 'mailings/main_menu.html' %}
+
+    <div class="container">
+        <h1 class="mt-5">Удалить блог: {{ recipient.email }}?</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger mt-5">Удалить</button>
+            <a class="btn btn-primary mt-5" href="{% url 'mailings:recipients' %}">Отменить</a>
+        </form>
+    </div>
+
+{% endblock %}

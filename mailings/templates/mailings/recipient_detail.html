@@ -1,10 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'mailings/base.html' %}
 
-</body>
-</html>
+{% block title %}Подробнее{% endblock %}
+
+{% block content %}
+    {% include 'mailings/main_menu.html' %}
+    <div class="container mt-5">
+    <h1 class="mb-5">{{ recipient.email }}</h1>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text"><strong>Полное имя:</strong> {{ recipient.full_name }}</p>
+            <p class="card-text"><strong>Описание:</strong> {{ recipient.comment }}</p>
+        </div>
+    </div>
+    <a href="{% url 'mailings:recipients' %}" class="btn btn-primary mt-3">Назад к списку получателей</a>
+</div>
+{% endblock %}
