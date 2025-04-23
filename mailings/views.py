@@ -1,7 +1,11 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DeleteView, UpdateView
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView, TemplateView
 from mailings.models import MailingRecipient
+
+
+class HomePageView(TemplateView):
+    template_name = 'mailings/home.html'
 
 
 class RecipientsView(ListView):
@@ -18,3 +22,7 @@ class RecipientCreateView(CreateView):
     fields = ('email', 'full_name', 'comment')
     template_name = 'mailings/add_recipients.html'
     success_url = reverse_lazy('recipients:recipients')
+
+
+# class RecipientUpdateView(UpdateView):
+#

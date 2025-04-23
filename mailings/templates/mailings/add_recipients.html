@@ -1,0 +1,16 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Добавить получателя{% endblock %}
+
+{% block content %}
+    {% include 'mailings/main_menu.html' %}
+    <div class="container">
+        <h1 class="mt-5">Добавить новый товар</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Добавить получателя</button>
+        </form>
+        <a href="{% url 'mailings:recipients' %}" class="btn btn-secondary mt-3">Назад к списку получателей</a>
+    </div>
+{% endblock %}
