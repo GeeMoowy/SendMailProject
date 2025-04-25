@@ -19,9 +19,10 @@
     </div>
     <div class="col-md-4">
         <div class="card">
+            <img src="{% static 'images/сообщения.png' %}" class="card-img-top" alt="Сообщения">
             <div class="card-body">
                 <h5 class="card-title">Сообщения</h5>
-                <a class="btn btn-primary">Перейти</a>
+                <a href="{% url 'mailings:messages' %}" class="btn btn-primary">Перейти</a>
             </div>
         </div>
     </div>
