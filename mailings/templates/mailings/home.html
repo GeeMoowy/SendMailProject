@@ -6,36 +6,42 @@
     {% load static %}
     {% include 'mailings/main_menu.html' %}
 
-<h1 class="text-center">Добро пожаловать на главную страницу!</h1>
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <img src="{% static 'images/получатели.png' %}" class="card-img-top" alt="Получатели">
-            <div class="card-body">
-                <h5 class="card-title">Получатели рассылки</h5>
-                <a href="{% url 'mailings:recipients' %}" class="btn btn-primary">Перейти</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <img src="{% static 'images/сообщения.png' %}" class="card-img-top" alt="Сообщения">
-            <div class="card-body">
-                <h5 class="card-title">Сообщения</h5>
-                <a href="{% url 'mailings:messages' %}" class="btn btn-primary">Перейти</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Карточка 3</h5>
-                <p class="card-text">Описание карточки 3.</p>
-                <a class="btn btn-primary">Перейти</a>
-            </div>
-        </div>
-    </div>
-</div>
+    <h1 class="text-center">Добро пожаловать на главную страницу!</h1>
 
+    <div>
+        <h3>Общая информация</h3>
+        <p>Количество всех рассылок: <strong>{{ total_mailings }}</strong></p>
+        <p>Количество активных рассылок: <strong>{{ active_mailings }}</strong></p>
+        <p>Количество уникальных получателей: <strong>{{ unique_recipients }}</strong></p>
+    </div>
 
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{% static 'images/получатели.png' %}" class="card-img-top" alt="Получатели">
+                <div class="card-body">
+                    <h5 class="card-title">Получатели рассылки</h5>
+                    <a href="{% url 'mailings:recipients' %}" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{% static 'images/сообщения.jpg' %}" class="card-img-top" alt="Сообщения">
+                <div class="card-body">
+                    <h5 class="card-title">Сообщения</h5>
+                    <a href="{% url 'mailings:messages' %}" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{% static 'images/Рассылки.jpg' %}" class="card-img-top" alt="Рассылки">
+                <div class="card-body">
+                    <h5 class="card-title">Рассылки</h5>
+                    <a href="{% url 'mailings:mailing' %}" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

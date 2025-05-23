@@ -40,3 +40,18 @@ class Mailing(models.Model):
 
     def __str__(self):
         return f'Рассылка: {self.message.subject} - Статус: {self.get_status_display()}'
+
+
+class SendingAttempt(models.Model):
+    """Модель для хранения информации о попытках отправки рассылки."""
+
+    attempt_time = models.DateTimeField(auto_now_add=True, verbose_name='Дата и время попытки')
+    status = models.CharField(max_length=20, choices=[
+        ('Успешно', 'Успешно'),
+        ('Не успешно', 'Не успешно'),
+    ], verbose_name='Статус')
+    response = models.TextField(verbose_name='Ответ почтового сервера')
+    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, related_name='sending_attempts')
+
+    def __str__(self):
+        return f'Попытка отправки: {self.status} - {self.attempt_time}'

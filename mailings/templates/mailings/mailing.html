@@ -1,10 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'mailings/base.html' %}
 
-</body>
-</html>
+{% block title %}Получатели рассылки{% endblock %}
+
+{% block content %}
+    {% include 'mailings/main_menu.html' %}
+
+<div class="container">
+    <div class="text-center">
+        <a class="p-2 btn btn-primary btn-lg" href="{% url 'mailings:add_mailing' %}">Добавить рассылку</a>
+    </div>
+    <h1 class="mt-4">Список рассылок</h1>
+    <div class="row">
+        {% for mail in mailing %}
+                <div class="card h-100 d-flex flex-column">
+                    <div class="card-body d-flex flex-column flex-grow-1">
+                        <h5 class="card-title"><strong>Рассылка: {{ mail.message.subject }}</strong> - <em>{{ mail.first_sent_at }}</em></h5>
+                        <div>
+                            <a href="{% url 'mailings:mailing_detail' mail.id %}" class="p-2 btn btn-primary btn-lg">Подробнее</a>
+                            <a href="{% url 'mailings:mailing_update' mail.id %}" class="p-2 btn btn-primary btn-lg">Редактировать</a>
+                            <a href="{% url 'mailings:mailing_delete' mail.id %}" class="p-2 btn btn-primary btn-lg">Удалить</a>
+                        </div>
+                    </div>
+                </div>
+        {% endfor %}
+    </div>
+    <a class="p-2 btn btn-primary btn-lg mt-3" href="{% url 'mailings:home' %}">На главную</a>
+</div>
+
+{% endblock %}
