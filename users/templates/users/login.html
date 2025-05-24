@@ -1,11 +1,11 @@
 {% extends 'mailings/base.html' %}
 
-{% block title %}Регистрация пользователя{% endblock %}
+{% block title %}Вход{% endblock %}
 
 {% block content %}
 {% include 'mailings/main_menu.html' %}
 <div class="container">
-    <h1 class="mt-5">Регистрация пользователя</h1>
+    <h1 class="mt-5">Войти в приложение</h1>
     <form class="row" method="post" enctype="multipart/form-data">
       <div class="col-6">
         <div class="card">
@@ -14,11 +14,11 @@
             {{ form.as_p }}
           </div>
           <button type="submit" class="btn btn-primary">
-            Зарегистрироваться
+            Войти
           </button>
         </div>
       </div>
     </form>
-    <a href="{% url 'mailings:home' %}" class="btn btn-secondary mt-3">Назад к списку товаров</a>
+    <a href="{% url 'mailings:home' %}" class="btn btn-secondary mt-3">Назад на главную</a>
 </div>
 {% endblock %}

@@ -10,7 +10,7 @@ from users.models import CustomUser
 class RegisterView(FormView):
     model = CustomUser
     form_class = UserRegistrationForm
-    template_name = 'register.html'
+    template_name = 'users/register.html'
     success_url = reverse_lazy('users:login')
 
     def form_valid(self, form):
