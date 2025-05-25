@@ -1,0 +1,44 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+{% include 'mailings/main_menu.html' %}
+<div class="container mt-5">
+        <h1 class="text-center">Профиль пользователя</h1>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="text-center">{{ user.username }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="Avatar" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/150" alt="Avatar" class="img-fluid rounded-circle">
+                    {% endif %}
+                </div>
+                <table class="table mt-3">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Email</th>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Телефон</th>
+                            <td>{{ user.phone_number }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Страна</th>
+                            <td>{{ user.country }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="text-center">
+                    <a href="{% url 'users:edit_profile' %}" class="btn btn-primary">Редактировать профиль</a>
+                    <a href="{% url 'mailings:home' %}" class="btn btn-primary">На главную</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

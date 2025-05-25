@@ -1,0 +1,14 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+{% include 'mailings/main_menu.html' %}
+<h1>Редактировать профиль</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить изменения</button>
+</form>
+<a href="{% url 'users:profile' %}">Назад к профилю</a>
+{% endblock %}

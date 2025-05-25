@@ -1,11 +1,16 @@
+import secrets
+
 from django.contrib.auth import logout
 from django.core.mail import send_mail
-from django.shortcuts import render, redirect
-from django.views.generic import FormView, View
-from django.urls import reverse_lazy
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import FormView, View, DetailView, UpdateView
+from django.urls import reverse_lazy, reverse
 
-from users.forms import UserRegistrationForm
+from config.settings import EMAIL_HOST_USER
+from users.forms import UserRegistrationForm, UserProfileForm
 from users.models import CustomUser
+
+
 
 
 class RegisterView(FormView):
@@ -16,12 +21,17 @@ class RegisterView(FormView):
 
     def form_valid(self, form):
         user = form.save()
+        user.is_active = False
+        token = secrets.token_hex(16)
+        user.token = token
+        user.save()
+        host = self.request.get_host()
+        url = f'http://{host}/users/email-confirm/{token}/'
         send_mail(
-            'Добро пожаловать на мой сайт',
-            'Вы зарегистрированы на сайте',
-            'kovylek.ul@mail.ru',
-            [user.email],
-            fail_silently=False,
+            subject='Подтверждение почты',
+            message=f'Привет, перейди по ссылке для подтверждения почты {url}',
+            from_email=EMAIL_HOST_USER,
+            recipient_list=[user.email],
         )
         return super().form_valid(form)
 
@@ -37,3 +47,29 @@ class LogoutView(View):
 
     def get(self, request):
         return self.post(request)
+
+
+class ProfileDetailView(DetailView):
+    model = CustomUser
+    template_name = 'users/profile_detail.html'
+    context_object_name = 'user'
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+
+class ProfileEditView(UpdateView):
+    model = CustomUser
+    form_class = UserProfileForm
+    template_name = 'users/profile_edit.html'
+    success_url = reverse_lazy('users:profile')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+
+def email_verification(request, token):
+    user = get_object_or_404(CustomUser, token=token)
+    user.is_active = True
+    user.save()
+    return redirect(reverse('users:login'))

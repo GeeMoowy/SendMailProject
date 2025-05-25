@@ -147,10 +147,9 @@ class SendMailingView(View):
     def post(self, request, pk):
         mailing = Mailing.objects.get(pk=pk)
         recipients = mailing.recipients.all()
-        attempt = SendingAttempt(mailing=mailing)
-        attempt.save()
 
         for recipient in recipients:
+            attempt = SendingAttempt(mailing=mailing)  # Создаем новую попытку для каждого получателя
             try:
                 send_mail(
                     subject=mailing.message.subject,
@@ -162,15 +161,30 @@ class SendMailingView(View):
 
                 attempt.status = 'Успешно'
                 attempt.response = 'Письмо успешно отправлено.'
-                attempt.save()
+                messages.success(request, f'Письмо успешно отправлено на {recipient.email}.')
 
             except Exception as e:
-
                 attempt.status = 'Не успешно'
                 attempt.response = str(e)
-                attempt.save()
                 messages.error(request, f'Ошибка при отправке письма на {recipient.email}: {str(e)}')
-                break
+
+            attempt.save()  # Сохраняем попытку после обработки
 
         messages.success(request, 'Рассылка завершена!')
-        return redirect('mailings:mailing_detail', pk=pk)
+        return redirect('mailings:mailing_attempts', pk=mailing.pk)
+
+
+class AllSendingAttemptsView(View):
+    def get(self, request):
+        attempts = SendingAttempt.objects.all()
+        return render(request, 'mailings/all_attempts.html', {'attempts': attempts})
+
+
+class MailingAttemptsView(ListView):
+    model = SendingAttempt
+    template_name = 'mailings/mailing_attempts.html'
+    context_object_name = 'attempts'
+
+    def get_queryset(self):
+        mailing_id = self.kwargs['pk']
+        return SendingAttempt.objects.filter(mailing_id=mailing_id)
