@@ -21,6 +21,7 @@ class HomePageView(TemplateView):
         context['total_mailings'] = total_mailings
         context['active_mailings'] = active_mailings
         context['unique_recipients'] = unique_recipients
+        context['user'] = self.request.user
 
         return context
 

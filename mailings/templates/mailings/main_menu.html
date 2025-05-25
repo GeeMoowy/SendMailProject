@@ -5,11 +5,15 @@
         <a href="{% url 'mailings:recipients' %}" class="p-2 btn btn-outline-primary">Получатели</a>
         <a href="{% url 'mailings:messages' %}" class="p-2 btn btn-outline-primary">Сообщения</a>
         <a href="{% url 'mailings:mailing' %}" class="p-2 btn btn-outline-primary">Рассылки</a>
-        <a href="{% url 'users:register' %}" class="p-2 btn btn-outline-primary">Регистрация</a>
-        <a href="{% url 'users:login' %}" class="p-2 btn btn-outline-primary">Войти</a>
-        <form method="post" action="{% url 'users:logout' %}" style="display: inline">
-            {% csrf_token  %}
-            <button type="submit" class="p-2 btn btn-outline-primary">Выйти</button>
-        </form>
+
+        {% if user.is_authenticated %}
+            <form action="{% url 'users:logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="p-2 btn btn-outline-primary">Выйти</button>
+            </form>
+        {% else %}
+            <a href="{% url 'users:register' %}" class="p-2 btn btn-outline-primary">Регистрация</a>
+            <a href="{% url 'users:login' %}" class="p-2 btn btn-outline-primary">Войти</a>
+        {% endif %}
     </nav>
 </div>
