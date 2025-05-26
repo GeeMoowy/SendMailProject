@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
@@ -26,20 +28,28 @@ class HomePageView(TemplateView):
         return context
 
 
-class RecipientsView(ListView):
+class RecipientsView(LoginRequiredMixin, ListView):
     model = MailingRecipient
     template_name = 'mailings/recipients.html'
     context_object_name = 'recipients'
 
     def get_queryset(self):
-        return MailingRecipient.objects.all()
+        queryset = super().get_queryset()
+
+        if self.request.user.has_perm('mailings.can_view_all_recipients'):
+            return queryset
+        return queryset.filter(owner=self.request.user)
 
 
-class RecipientCreateView(CreateView):
+class RecipientCreateView(LoginRequiredMixin, CreateView):
     model = MailingRecipient
     fields = ('email', 'full_name', 'comment')
     template_name = 'mailings/add_recipients.html'
     success_url = reverse_lazy('recipients:recipients')
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
 class RecipientDetailView(DetailView):
@@ -54,6 +64,13 @@ class RecipientUpdateView(UpdateView):
     template_name = 'mailings/add_recipients.html'
     success_url = reverse_lazy('recipients:recipients')
 
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        # Разрешаем если: пользователь владелец ИЛИ менеджер/админ (но только просмотр)
+        if obj.owner != request.user and not request.user.is_superuser:
+            raise PermissionDenied("Вы не можете редактировать чужие данные")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_success_url(self):
         return reverse('recipients:recipient_detail', args=[self.kwargs.get('pk')])
 
@@ -63,6 +80,13 @@ class RecipientDeleteViews(DeleteView):
     template_name = 'mailings/recipient_confirm_delete.html'
     success_url = reverse_lazy('recipients:recipients')
     context_object_name = 'recipient'
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        # Только владелец может удалять (даже менеджеры не могут удалять чужие данные)
+        if obj.owner != request.user:
+            raise PermissionDenied("Вы не можете удалять чужие данные")
+        return super().dispatch(request, *args, **kwargs)
 
 
 class MessageListView(ListView):
@@ -110,14 +134,22 @@ class MailingListView(ListView):
     context_object_name = 'mailing'
 
     def get_queryset(self):
-        return Mailing.objects.all()
+        queryset = super().get_queryset()
+
+        if self.request.user.has_perm('mailings.can_view_all_mailing'):
+            return queryset
+        return queryset.filter(owner=self.request.user)
 
 
-class MailingCreateView(CreateView):
+class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     fields = ('first_sent_at', 'ended_at', 'status', 'message', 'recipients')
     template_name = 'mailings/add_mailing.html'
     success_url = reverse_lazy('recipients:mailing')
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
 class MailingDetailView(DetailView):
@@ -132,6 +164,13 @@ class MailingUpdateView(UpdateView):
     template_name = 'mailings/add_mailing.html'
     success_url = reverse_lazy('recipients:mailing')
 
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        # Разрешаем если: пользователь владелец ИЛИ менеджер/админ (но только просмотр)
+        if obj.owner != request.user and not request.user.is_superuser:
+            raise PermissionDenied("Вы не можете редактировать чужие данные")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_success_url(self):
         return reverse('recipients:mailing_detail', args=[self.kwargs.get('pk')])
 
@@ -141,6 +180,13 @@ class MailingDeleteViews(DeleteView):
     template_name = 'mailings/mailing_confirm_delete.html'
     success_url = reverse_lazy('recipients:mailing')
     context_object_name = 'mailing'
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        # Только владелец может удалять (даже менеджеры не могут удалять чужие данные)
+        if obj.owner != request.user:
+            raise PermissionDenied("Вы не можете удалять чужие данные")
+        return super().dispatch(request, *args, **kwargs)
 
 
 class SendMailingView(View):
@@ -188,3 +234,66 @@ class MailingAttemptsView(ListView):
     def get_queryset(self):
         mailing_id = self.kwargs['pk']
         return SendingAttempt.objects.filter(mailing_id=mailing_id)
+
+
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Count, Q
+from .models import SendingAttempt, Mailing
+
+
+class MailingReportsView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    template_name = 'mailings/mailing_reports.html'
+    permission_required = 'mailings.view_reports'
+    context_object_name = 'user_reports'
+
+    def get_queryset(self):
+        # Базовый запрос
+        queryset = Mailing.objects.all()
+
+        # Для обычных пользователей - только свои рассылки
+        if not self.request.user.has_perm('mailings.can_view_all'):
+            queryset = queryset.filter(owner=self.request.user)
+
+        # Собираем статистику по каждому пользователю
+        reports = []
+        for mailing in queryset:
+            attempts = mailing.sending_attempts.all()
+            total_attempts = attempts.count()
+            success_attempts = attempts.filter(status='Успешно').count()
+            failed_attempts = total_attempts - success_attempts
+
+            reports.append({
+                'mailing': mailing,
+                'total_attempts': total_attempts,
+                'success_attempts': success_attempts,
+                'failed_attempts': failed_attempts,
+                'success_rate': (success_attempts / total_attempts * 100) if total_attempts > 0 else 0,
+                'last_attempt': attempts.order_by('-attempt_time').first()
+            })
+
+        return reports
+
+
+class MailingAttemptsDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    model = Mailing
+    template_name = 'mailings/mailing_attempts_detail.html'
+    permission_required = 'mailings.view_reports'
+    context_object_name = 'mailing'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        mailing = self.get_object()
+
+        attempts = mailing.sending_attempts.all().order_by('-attempt_time')
+        total = attempts.count()
+        success = attempts.filter(status='Успешно').count()
+
+        context.update({
+            'attempts': attempts,
+            'total_attempts': total,
+            'success_attempts': success,
+            'failed_attempts': total - success,
+            'success_rate': (success / total * 100) if total > 0 else 0
+        })
+        return context

@@ -1,6 +1,6 @@
 {% extends 'mailings/base.html' %}
 
-{% block title %}Получатели рассылки{% endblock %}
+{% block title %}Список рассылок{% endblock %}
 
 {% block content %}
     {% include 'mailings/main_menu.html' %}
@@ -17,8 +17,10 @@
                         <h5 class="card-title"><strong>Рассылка: {{ mail.message.subject }}</strong> - <em>{{ mail.first_sent_at }}</em></h5>
                         <div>
                             <a href="{% url 'mailings:mailing_detail' mail.id %}" class="p-2 btn btn-primary btn-lg">Подробнее</a>
-                            <a href="{% url 'mailings:mailing_update' mail.id %}" class="p-2 btn btn-primary btn-lg">Редактировать</a>
-                            <a href="{% url 'mailings:mailing_delete' mail.id %}" class="p-2 btn btn-danger btn-lg">Удалить</a>
+                            {% if mail.owner == request.user or request.user.is_superuser %}
+                                <a href="{% url 'mailings:mailing_update' mail.id %}" class="p-2 btn btn-primary btn-lg">Редактировать</a>
+                                <a href="{% url 'mailings:mailing_delete' mail.id %}" class="p-2 btn btn-danger btn-lg">Удалить</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

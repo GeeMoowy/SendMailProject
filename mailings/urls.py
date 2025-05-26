@@ -5,7 +5,7 @@ from mailings.views import (RecipientsView, RecipientCreateView, HomePageView, R
                             MessageUpdateView, MessageDeleteViews, MailingListView, MailingCreateView,
                             MailingDetailView,
                             MailingUpdateView, MailingDeleteViews, SendMailingView, MailingAttemptsView,
-                            AllSendingAttemptsView)
+                            AllSendingAttemptsView, MailingReportsView, MailingAttemptsDetailView)
 
 app_name = 'recipients'
 
@@ -29,4 +29,6 @@ urlpatterns = [
     path('<int:pk>/send_mailing/', SendMailingView.as_view(), name='send_mailing'),
     path('mailing/<int:pk>/attempts/', MailingAttemptsView.as_view(), name='mailing_attempts'),
     path('all_attempts/', AllSendingAttemptsView.as_view(), name='all_attempts'),
+    path('reports/', MailingReportsView.as_view(), name='mailing_reports'),
+    path('reports/mailing/<int:pk>/', MailingAttemptsDetailView.as_view(), name='mailing_attempts_detail'),
 ]

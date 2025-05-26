@@ -17,8 +17,10 @@
                         <h5 class="card-title"><strong>{{ recipient.email }}</strong> - <em>{{ recipient.full_name }}</em></h5>
                         <div>
                             <a href="{% url 'mailings:recipient_detail' recipient.id %}" class="p-2 btn btn-primary btn-lg">Подробнее</a>
-                            <a href="{% url 'recipients:recipient_update' recipient.id %}" class="p-2 btn btn-primary btn-lg">Редактировать</a>
-                            <a href="{% url 'mailings:recipient_delete' recipient.id %}" class="p-2 btn btn-danger btn-lg">Удалить</a>
+                            {% if recipient.owner == request.user or user.is_superuser %}
+                                <a href="{% url 'recipients:recipient_update' recipient.id %}" class="p-2 btn btn-primary btn-lg">Редактировать</a>
+                                <a href="{% url 'mailings:recipient_delete' recipient.id %}" class="p-2 btn btn-danger btn-lg">Удалить</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

@@ -1,9 +1,12 @@
 import secrets
 
 from django.contrib.auth import logout
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib import messages
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import FormView, View, DetailView, UpdateView
+from django.views.generic import FormView, View, DetailView, UpdateView, ListView
 from django.urls import reverse_lazy, reverse
 
 from config.settings import EMAIL_HOST_USER
@@ -73,3 +76,63 @@ def email_verification(request, token):
     user.is_active = True
     user.save()
     return redirect(reverse('users:login'))
+
+
+class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    model = CustomUser
+    template_name = 'users/user_list.html'
+    context_object_name = 'users'
+    permission_required = 'users.can_block_user'
+
+    # Убрали paginate_by - теперь все пользователи будут на одной странице
+
+    def get_queryset(self):
+        queryset = super().get_queryset().exclude(id=self.request.user.id)
+
+        # Фильтрация по статусу (активные/заблокированные)
+        status = self.request.GET.get('status')
+        if status == 'active':
+            queryset = queryset.filter(is_active=True)
+        elif status == 'blocked':
+            queryset = queryset.filter(is_active=False)
+
+        # Поиск по email или имени
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(email__icontains=search) |
+                Q(username__icontains=search)
+            )
+
+        return queryset.order_by('-date_joined')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()  # Получаем полный queryset
+        context['total_users'] = queryset.count()
+        context['active_users'] = queryset.filter(is_active=True).count()
+        context['blocked_users'] = context['total_users'] - context['active_users']
+        return context
+
+
+class ToggleUserStatusView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'users.can_block_user'
+    http_method_names = ['post']  # Явно разрешаем только POST
+
+    def post(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+
+        if user == request.user:
+            messages.error(request, "Вы не можете заблокировать себя!")
+        else:
+            user.is_active = not user.is_active
+            user.save()
+            action = "разблокирован" if user.is_active else "заблокирован"
+            messages.success(request, f"Пользователь {user.email} {action}")
+
+        return redirect(request.META.get('HTTP_REFERER', reverse('users:user_list')))
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm(self.permission_required):
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)

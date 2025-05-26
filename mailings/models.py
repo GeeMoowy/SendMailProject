@@ -14,6 +14,11 @@ class MailingRecipient(models.Model):
     comment = models.TextField(verbose_name='Комментарий')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
 
+    class Meta:
+        permissions = [
+            ('can_view_all_recipients', 'Может просматривать всех получателей'),
+        ]
+
     def __str__(self):
         return f'{self.full_name}: <{self.email}>'
 
@@ -23,7 +28,6 @@ class Message(models.Model):
 
     subject = models.CharField(max_length=255, verbose_name='Тема сообщения')
     body = models.TextField(verbose_name='Тело сообщения')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
 
     def __str__(self):
         return self.subject
@@ -44,6 +48,11 @@ class Mailing(models.Model):
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='mailings', verbose_name='Сообщение')
     recipients = models.ManyToManyField('MailingRecipient', related_name='mailings', verbose_name='Получатели')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
+
+    class Meta:
+        permissions = [
+            ('can_view_all_mailing', 'Может просматривать все рассылки'),
+        ]
 
     def __str__(self):
         return f'Рассылка: {self.message.subject} - Статус: {self.get_status_display()}'
