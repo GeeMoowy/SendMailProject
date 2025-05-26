@@ -10,6 +10,8 @@ class CustomUser(AbstractUser):
 
     token = models.CharField(max_length=100, verbose_name='Токен', null=True, blank=True)
 
+    is_blocked = models.BooleanField(default=False, verbose_name='Заблокирован')
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 

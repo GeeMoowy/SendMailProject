@@ -1,5 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
+
+
+User = get_user_model()
 
 
 class MailingRecipient(models.Model):
@@ -8,6 +12,7 @@ class MailingRecipient(models.Model):
     email = models.EmailField(max_length=100, unique=True, verbose_name='Email')
     full_name = models.CharField(max_length=100, verbose_name='Ф. И. О.')
     comment = models.TextField(verbose_name='Комментарий')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
 
     def __str__(self):
         return f'{self.full_name}: <{self.email}>'
@@ -18,6 +23,7 @@ class Message(models.Model):
 
     subject = models.CharField(max_length=255, verbose_name='Тема сообщения')
     body = models.TextField(verbose_name='Тело сообщения')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
 
     def __str__(self):
         return self.subject
@@ -37,6 +43,7 @@ class Mailing(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='created', verbose_name='Статус')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='mailings', verbose_name='Сообщение')
     recipients = models.ManyToManyField('MailingRecipient', related_name='mailings', verbose_name='Получатели')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Владелец')
 
     def __str__(self):
         return f'Рассылка: {self.message.subject} - Статус: {self.get_status_display()}'
