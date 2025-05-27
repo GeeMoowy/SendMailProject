@@ -3,13 +3,16 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, TemplateView, DetailView
 from mailings.models import MailingRecipient, Message, Mailing, SendingAttempt
 from django.contrib import messages
 from django.shortcuts import redirect
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class HomePageView(TemplateView):
     template_name = 'mailings/home.html'
 

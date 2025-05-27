@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 class Command(BaseCommand):
     help = 'Создает обычного пользователя с указанными email и паролем'
 

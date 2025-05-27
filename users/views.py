@@ -14,8 +14,6 @@ from users.forms import UserRegistrationForm, UserProfileForm
 from users.models import CustomUser
 
 
-
-
 class RegisterView(FormView):
     model = CustomUser
     form_class = UserRegistrationForm
@@ -100,8 +98,7 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(
-                Q(email__icontains=search) |
-                Q(username__icontains=search)
+                Q(email__icontains=search) | Q(username__icontains=search)
             )
 
         return queryset.order_by('-date_joined')

@@ -1,0 +1,22 @@
+[flake8]
+# Базовые настройки
+max-line-length = 88
+ignore = E203, W503, E501, DJ01
+
+# Плагины
+per-file-ignores =
+    */migrations/*:E501,F401
+
+# Включение плагинов
+django-settings-module = config.settings
+format = pylint
+show-source = True
+statistics = True
+exclude =
+    .venv,
+    .git,
+    __pycache__,
+    migrations,
+    settings.py,
+    manage.py,
+    */tests/*
