@@ -22,6 +22,7 @@ class Command(BaseCommand):
             'can_block_user',
             'can_view_all_recipients',
             'can_view_all_mailing',
+            'can_disable_mailing',
         ]
 
         # Находим и добавляем разрешения

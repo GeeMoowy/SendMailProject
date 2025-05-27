@@ -40,6 +40,7 @@ class Mailing(models.Model):
         ('created', 'Создана'),
         ('started', 'Запущена'),
         ('completed', 'Завершена'),
+        ('disabled', 'Отключена'),
     ]
 
     first_sent_at = models.DateTimeField(default=timezone.now, verbose_name='Дата и время первой отправки')
@@ -52,6 +53,7 @@ class Mailing(models.Model):
     class Meta:
         permissions = [
             ('can_view_all_mailing', 'Может просматривать все рассылки'),
+            ('can_disable_mailing', 'Может отключать рассылки'),
         ]
 
     def __str__(self):

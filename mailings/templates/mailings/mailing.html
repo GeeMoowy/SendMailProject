@@ -21,6 +21,12 @@
                                 <a href="{% url 'mailings:mailing_update' mail.id %}" class="p-2 btn btn-primary btn-lg">Редактировать</a>
                                 <a href="{% url 'mailings:mailing_delete' mail.id %}" class="p-2 btn btn-danger btn-lg">Удалить</a>
                             {% endif %}
+                            {% if mail.status != 'disabled' and is_manager %}
+                                <form action="{% url 'mailings:disable_mailing' pk=mail.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning btn-sm">Отключить</button>
+                                </form>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

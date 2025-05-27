@@ -1,7 +1,7 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, TemplateView, DetailView
@@ -140,6 +140,11 @@ class MailingListView(ListView):
             return queryset
         return queryset.filter(owner=self.request.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_manager'] = self.request.user.groups.filter(name='Менеджеры').exists()
+        return context
+
 
 class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
@@ -236,12 +241,6 @@ class MailingAttemptsView(ListView):
         return SendingAttempt.objects.filter(mailing_id=mailing_id)
 
 
-from django.views.generic import ListView
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db.models import Count, Q
-from .models import SendingAttempt, Mailing
-
-
 class MailingReportsView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     template_name = 'mailings/mailing_reports.html'
     permission_required = 'mailings.view_reports'
@@ -297,3 +296,17 @@ class MailingAttemptsDetailView(LoginRequiredMixin, PermissionRequiredMixin, Det
             'success_rate': (success / total * 100) if total > 0 else 0
         })
         return context
+
+
+class DisableMailingView(PermissionRequiredMixin, View):
+    def test_func(self):
+        user = self.request.user
+        return user.groups.filter(name='Менеджеры').exists() or user.has_perm('mailings.can_disable_mailing')
+
+    def post(self, request, pk):
+        mailing = get_object_or_404(Mailing, pk=pk)
+        mailing.status = 'disabled'
+        mailing.save()
+
+        messages.success(request, f'Рассылка "{mailing.message.subject}" отключена')
+        return redirect('mailings:mailing')
