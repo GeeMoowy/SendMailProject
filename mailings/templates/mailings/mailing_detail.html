@@ -8,6 +8,7 @@
     <h1 class="mb-5">{{ mailing.message.subject }}</h1>
     <div class="card">
         <div class="card-body">
+            <p class="card-text"><strong>ID рассылки:</strong> {{ mailing.id }}</p>
             <p class="card-text"><strong>Дата создания рассылки:</strong> {{ mailing.first_sent_at }}</p>
             <p class="card-text"><strong>Дата и время окончания отправки:</strong> {{ mailing.ended_at }}</p>
             <p class="card-text"><strong>Статус:</strong> {{ mailing.status }}</p>
