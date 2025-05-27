@@ -1,0 +1,16 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Подробнее{% endblock %}
+
+{% block content %}
+    {% include 'mailings/main_menu.html' %}
+    <div class="container mt-5">
+    <h1 class="mb-5">{{ message.subject }}</h1>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text"><strong>Тело сообщения:</strong> {{ message.body }}</p>
+        </div>
+    </div>
+    <a href="{% url 'mailings:messages' %}" class="btn btn-primary mt-3">Назад к списку сообщений</a>
+</div>
+{% endblock %}

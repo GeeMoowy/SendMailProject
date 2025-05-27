@@ -1,0 +1,17 @@
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import path
+from users.views import RegisterView, ProfileDetailView, ProfileEditView, email_verification, UserListView, \
+    ToggleUserStatusView
+
+app_name = 'users'
+
+urlpatterns = [
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('profile/', ProfileDetailView.as_view(), name='profile'),
+    path('edit_profile/', ProfileEditView.as_view(), name='edit_profile'),
+    path('email-confirm/<str:token>/', email_verification, name='email_confirm'),
+    path('', UserListView.as_view(), name='user_list'),
+    path('<int:pk>/toggle-status/', ToggleUserStatusView.as_view(), name='toggle_user_status'),
+]

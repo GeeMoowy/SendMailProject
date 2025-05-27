@@ -1,0 +1,22 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Рассылка{% endblock %}
+
+{% block content %}
+    {% include 'mailings/main_menu.html' %}
+    <div class="container">
+        <h1 class="mt-5">Добавить или отредактировать рассылку</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">
+                {% if object %}
+                Сохранить
+                {% else %}
+                Создать
+                {% endif %}
+            </button>
+        </form>
+        <a href="{% url 'mailings:mailing' %}" class="btn btn-secondary mt-3">Назад к списку рассылок</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Список пользователей{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Управление пользователями</h2>
+
+    <!-- Фильтры и поиск -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="get">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Поиск по email или имени" value="{{ request.GET.search }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">Найти</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6 text-right">
+            <div class="btn-group">
+                <a href="?status=active" class="btn btn-sm {% if request.GET.status == 'active' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    Активные ({{ active_users }})
+                </a>
+                <a href="?status=blocked" class="btn btn-sm {% if request.GET.status == 'blocked' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                    Заблокированные ({{ blocked_users }})
+                </a>
+                <a href="?" class="btn btn-sm btn-outline-secondary">Все</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица пользователей -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Имя</th>
+                    <th>Дата регистрации</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.get_full_name|default:"-" }}</td>
+                    <td>{{ user.date_joined|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        {% if user.is_active %}
+                            <span class="badge badge-success">Активен</span>
+                        {% else %}
+                            <span class="badge badge-danger">Заблокирован</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'users:toggle_user_status' user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm {% if user.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                                {% if user.is_active %}Заблокировать{% else %}Разблокировать{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">Пользователи не найдены</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-4">
+    <a href="{% url 'mailings:home' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Вернуться на главную
+    </a>
+    </div>
+</div>
+{% endblock %}

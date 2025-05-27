@@ -1,0 +1,30 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Подробнее{% endblock %}
+
+{% block content %}
+    {% include 'mailings/main_menu.html' %}
+    <div class="container mt-5">
+    <h1 class="mb-5">{{ mailing.message.subject }}</h1>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text"><strong>ID рассылки:</strong> {{ mailing.id }}</p>
+            <p class="card-text"><strong>Дата создания рассылки:</strong> {{ mailing.first_sent_at }}</p>
+            <p class="card-text"><strong>Дата и время окончания отправки:</strong> {{ mailing.ended_at }}</p>
+            <p class="card-text"><strong>Статус:</strong> {{ mailing.status }}</p>
+            <p class="card-text"><strong>Получатели рассылки:</strong>
+                {% for recipient in mailing.recipients.all %}
+                    {{ recipient }}<br>
+                {% empty %}
+                    Нет получателей.
+                {% endfor %}
+            </p>
+        </div>
+    </div>
+        <form action="{% url 'mailings:send_mailing' mailing.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success mt-4">Отправить рассылку</button>
+        </form>
+    <a href="{% url 'mailings:mailing' %}" class="btn btn-primary mt-3">Назад к списку рассылок</a>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Регистрация пользователя{% endblock %}
+
+{% block content %}
+{% include 'mailings/main_menu.html' %}
+<div class="container">
+    <h1 class="mt-5">Регистрация пользователя</h1>
+    <form class="row" method="post" enctype="multipart/form-data">
+      <div class="col-6">
+        <div class="card">
+          <div class="card-body">
+            {% csrf_token %}
+            {{ form.as_p }}
+          </div>
+          <button type="submit" class="btn btn-primary">
+            Зарегистрироваться
+          </button>
+        </div>
+      </div>
+    </form>
+    <a href="{% url 'mailings:home' %}" class="btn btn-secondary mt-3">Назад к списку товаров</a>
+</div>
+{% endblock %}
